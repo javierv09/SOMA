@@ -1,4 +1,5 @@
 \documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry}
 \begin{document}
     \title{SOMA Documentation}
     \author{Javier Villarreal}
@@ -8,4 +9,18 @@
     \section{Introduction}
         The purpose of this document is to keep track of the project to port the C++ SOMA code to Fortran.
 
+    \section{C++ Code Architecture}
+        The C++ code is broadly arranged in the following way:
+        \begin{enumerate}
+            \item Reads in simulation parameter text files and defines some constants.
+            \item constructs the objects that hold the variables: \texttt{Domain}, \texttt{SimFluid}, and \texttt{Approximator}
+            \item Reads in geometry-based data files to appropriate object variables.
+            \item Enforces boundary conditions and calculates derivatives on initial data.
+            \item Defines parameters for the genetic algorithm optimization code.
+            \item (optional) Reads initial values from text files and re-calculates BC's and derivatives.
+            \item Prints initial data to output text files.
+            \item Loops over time steps. (SOMA proper)
+            \item Prints latest values to output text files.
+        \end{enumerate}
+        In the SOMA step, the code splits into one of two modes, explicit (using Runge-Kutta) or implicit (using RBF addition). Different mechanisms within the code based on convergence criteria or iteration counts switch the code between one mode or the other. Each one will be explaines in its own section.
 \end{document}
