@@ -1,2 +1,2 @@
 # SOMA
-Project to port C++ code to Fortran
+Project to port C++ SOMA code to Fortran
