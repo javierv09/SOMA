@@ -1,0 +1,33 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\begin{document}
+    \title{To Do List and Open Issues}
+    \author{Javier Villarreal}
+    \date{}
+    \maketitle
+
+    \section*{To Do}
+    \subsection*{Read in simulation metadata}
+        The data files necessary to make the code run are different depending on whether the code is running a 2- or 3-dimensional problem. The common files are:
+        \begin{itemize}
+            \item SimulationValues.txt
+            \begin{itemize}
+                \item Mach number
+                \item Angle of Attack
+                \item Reynolds Number
+            \end{itemize}
+            \item Sizes.txt
+            \begin{itemize}
+                \item \# of domain nodes (including body boundary nodes)
+                \item \# of body boundary nodes
+                \item \# of farfield boundary nodes
+                \item (Only in 3D code) \# of symmetry nodes
+                \item \# of cloud nodes per domain/body boundary node (for differential quadrature)
+                \item \# of ghost nodes per body boundary node (for differential quadrature, should equal (cloud-1)/2)
+                \item \# of extrapolation nodes per farfield boundary node
+                \item \# of total nodes (= domain + farfield + ghost*body)
+            \end{itemize}
+        \end{itemize}
+    
+    The current task is to write a subroutine to read those files. The subroutine should reside in a separate module, since file I/O is not inherently a SOMA-specific task.
+\end{document}
