@@ -37,3 +37,6 @@
 *.fls
 *.log
 *.synctex.gz
+
+# VS Code settings
+.vscode/*

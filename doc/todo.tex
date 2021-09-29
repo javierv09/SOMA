@@ -7,6 +7,15 @@
     \maketitle
 
     \section*{To Do}
+
+    \subsection*{Build Options}
+    Before development can go fully underway, build and compilation options need to be defines in the makefile. Some options to bear in mind:
+    \begin{itemize}
+        \item Debug vs Release builds. (Note: If using VSCode, the different builds should be reflected in the JSON option files)
+        \item Warning and error flags (\texttt{-Wall}, \texttt{-pedantic}, \texttt{-std=...})
+        \item Optimizations, \texttt{-Og} for debugging and \texttt{-O2,-O3} for release.
+    \end{itemize}
+
     \subsection*{Read in simulation metadata}
         The data files necessary to make the code run are different depending on whether the code is running a 2- or 3-dimensional problem. The common files are:
         \begin{itemize}
