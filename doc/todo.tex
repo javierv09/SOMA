@@ -16,6 +16,9 @@
         \item Optimizations, \texttt{-Og} for debugging and \texttt{-O2,-O3} for release.
     \end{itemize}
 
+        \subsubsection*{Update 10/21/21}
+        Creating both debug and release builds in different directories proved to be less straightforward than intended with Make, so instead there will only be the one build and flags will be specified in the makefile. This means that \texttt{make clean} will have to be run any time the flags are changed in order to recompile everything. Additionally, dependencies have to be explicitly specified. It is possible to come back and improve on the makefile to be more exhaustive, but it was not worth it at this time, while the code structure is still simple.
+
     \subsection*{Read in simulation metadata}
         The data files necessary to make the code run are different depending on whether the code is running a 2- or 3-dimensional problem. The common files are:
         \begin{itemize}
