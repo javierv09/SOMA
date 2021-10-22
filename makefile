@@ -24,16 +24,17 @@ $(BINDIR)/$(EXE): $(OBJ) | $(BINDIR)
 $(OBJDIR)/%.o: $(SRCDIR)/%.f90 | $(OBJDIR)
 	$(FC) $(FFLAGS) -c $< -o $@ -J $(OBJDIR)
 
-#
+#===================
 # BINARY DIRECTORIES
-#
+#===================
 $(OBJDIR) $(BINDIR):
 	mkdir -p $@
 
 #=============
 # DEPENDENCIES
 #=============
-$(OBJDIR)/main.o: $(OBJDIR)/readData.o
+$(OBJDIR)/main.o: $(OBJDIR)/constants.o $(OBJDIR)/read_input_data.o
+$(OBJDIR)/read_input_data.o: $(OBJDIR)/constants.o
 
 #=========
 # CLEAN-UP
