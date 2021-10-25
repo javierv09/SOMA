@@ -3,9 +3,9 @@ program soma
     use read_input_data
     implicit none
 
-    call read_param_data()
-    call read_geom_data()
+    call read_data()
 
+    print *, ubound(b_normal,1)
+    print *, ubound(b_normal,2)
     print *, "Hello World!"
-    print *, Ma
 end program soma
