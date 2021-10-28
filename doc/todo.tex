@@ -6,43 +6,42 @@
     \date{}
     \maketitle
 
-    \section*{To Do}
+    \section{Active Tasks}
 
-    \subsection*{Build Options}
-    Before development can go fully underway, build and compilation options need to be defines in the makefile. Some options to bear in mind:
-    \begin{itemize}
-        \item Debug vs Release builds. (Note: If using VSCode, the different builds should be reflected in the JSON option files)
-        \item Warning and error flags (\texttt{-Wall}, \texttt{-pedantic}, \texttt{-std=...})
-        \item Optimizations, \texttt{-Og} for debugging and \texttt{-O2,-O3} for release.
-    \end{itemize}
+    \subsection{Data architecture and variables}
+        The current task is to create all the variables necessary to hold the simulation data. So far, the only existing variables are those used to read in text file data. The rest of the data is organized like so in the C++ implementation:
 
-        \subsubsection*{Update 10/21/21}
-        Creating both debug and release builds in different directories proved to be less straightforward than intended with Make, so instead there will only be the one build and flags will be specified in the makefile. This means that \texttt{make clean} will have to be run any time the flags are changed in order to recompile everything. Additionally, dependencies have to be explicitly specified. It is possible to come back and improve on the makefile to be more exhaustive, but it was not worth it at this time, while the code structure is still simple.
-
-    \subsection*{Read in simulation metadata}
-        The data files necessary to make the code run are different depending on whether the code is running a 2- or 3-dimensional problem. The common files are:
-        \begin{itemize}
-            \item SimulationValues.txt
-            \begin{itemize}
-                \item Mach number
-                \item Angle of Attack
-                \item Reynolds Number
-            \end{itemize}
-            \item Sizes.txt
-            \begin{itemize}
-                \item \# of domain nodes (including body boundary nodes)
-                \item \# of body boundary nodes
-                \item \# of farfield boundary nodes
-                \item (Only in 3D code) \# of symmetry nodes
-                \item \# of cloud nodes per domain/body boundary node (for differential quadrature)
-                \item \# of ghost nodes per body boundary node (for differential quadrature, should equal (cloud-1)/2)
-                \item \# of extrapolation nodes per farfield boundary node
-                \item \# of total nodes (= domain + farfield + ghost*body)
-            \end{itemize}
-        \end{itemize}
     
-    The current task is to write a subroutine to read those files. The subroutine should reside in a separate module, since file I/O is not inherently a SOMA-specific task.
+        There could be room for improvement in the structure -- not necessarily for performance, but for readability of the code.
+    
+    \newpage
+    \section{Future Improvements}
+    \subsection{Build Options}
+    Improvement could be made to the makefile (or a different build software) for having different builds in separate directories for debugg and release versions. There are also some softwares that automatically figure out dependencies, so they don't have to be explicitly stated in the makefile.
 
-    \subsection*{Data architecture}
-        Geometry and simulation data is structured a certain way in the C++ code (to be documented later). There could be room for improvement in the structure -- not necessarily for performance, but for readability of the code.
+    \subsection{Pre-processing/Data structure}
+    The way the data is stored in the input text files and in variables within the code is suboptimal. Changes could be made both within pre-processing (i.e. the Matlab codes that generate those files) and how the variables are declared in Fortran.
+
+    \newpage
+    \section{Completed Tasks}
+
+    \subsection{Build Options}
+    The code is built with a basic Makefile. Compilation flags are hardcoded, so a \texttt{make clean} is needed anytime flags are changed.
+
+    \subsection{Read in simulation data}
+    The data files necessary to make the code run are different depending on whether the code is running a 2- or 3-dimensional problem. For 2D, geometries, the metadata files are:
+    \begin{itemize}
+        \item SimulationValues.txt (Mach, AOA, Re)
+        \item Sizes.txt (\# of domain, body, farfield, cloud, ghost, extrapolation, total nodes)
+    \end{itemize}
+    and the geometry data files are:
+    \begin{itemize}
+        \item x,y.txt (node coordinates)
+        \item DX,DY.txt (DQ coefficients)
+        \item EC.txt (extrapolation coefficients)
+        \item Jd,Jb,Jf.txt (domain, body, farfield node indices)
+        \item nxb,nyb.txt (body node unit normal vectors)
+        \item nxf,nyf.txt (farfield node unit normal vectors)
+        \item s11,s12,s21,s22.txt (Flow tangency matrices)
+    \end{itemize}
 \end{document}

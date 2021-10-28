@@ -13,7 +13,8 @@ module read_input_data
     real(dp), dimension(:,:), allocatable :: DX, DY, EC, &
                                              Jd, Jb, Jf, &
                                              b_normal, &
-                                             f_normal
+                                             f_normal, &
+                                             slip
 
     private read_param_data, read_geom_data
 
@@ -58,6 +59,7 @@ contains
         allocate( Jf(n_far,n_extrap+1) )
         allocate( b_normal(n_body,2) )
         allocate( f_normal(n_far,2) )
+        allocate( slip(n_body,4) )
 
         open(newunit=u, file=geom_dir//"x.txt", action="read", status="old")
         read(u, *) x
@@ -98,6 +100,19 @@ contains
         close(u)
         open(newunit=u, file=geom_dir//"nyf.txt", action="read", status="old")
         read(u, *) (f_normal(i,2), i=1,n_far)
+        close(u)
+
+        open(newunit=u, file=geom_dir//"s11.txt", action="read", status="old")
+        read(u, *) (slip(i,1), i=1,n_body)
+        close(u)
+        open(newunit=u, file=geom_dir//"s12.txt", action="read", status="old")
+        read(u, *) (slip(i,2), i=1,n_body)
+        close(u)
+        open(newunit=u, file=geom_dir//"s21.txt", action="read", status="old")
+        read(u, *) (slip(i,3), i=1,n_body)
+        close(u)
+        open(newunit=u, file=geom_dir//"s22.txt", action="read", status="old")
+        read(u, *) (slip(i,4), i=1,n_body)
         close(u)
 
     end subroutine read_geom_data

@@ -23,4 +23,35 @@
             \item Prints latest values to output text files.
         \end{enumerate}
         In the SOMA step, the code splits into one of two modes, explicit (using Runge-Kutta) or implicit (using RBF addition). Different mechanisms within the code based on convergence criteria or iteration counts switch the code between one mode or the other. Each one will be explained in its own section.
+    
+    \section{Pre-Processing}
+        Geometry data used to run the simulation is currently created on a case by case basis using Matlab codes to generate .txt files that are then read in by SOMA. SimulationValues.txt defines the configuration of the simulation, and Sizes.txt contains metadata used to properly allocate arrays.
+        \begin{itemize}
+            \item SimulationValues.txt (Mach, AOA, Re)
+            \item Sizes.txt (\# of domain, body, farfield, cloud, ghost, extrapolation, total nodes)
+        \end{itemize}
+        The geometry data files themselves are:
+        \begin{itemize}
+            \item x,y.txt (node coordinates)
+            \item DX,DY.txt (DQ coefficients)
+            \item EC.txt (extrapolation coefficients)
+            \item Jd,Jb,Jf.txt (domain, body, farfield node indices)
+            \item nxb,nyb.txt (body node unit normal vectors)
+            \item nxf,nyf.txt (farfield node unit normal vectors)
+            \item s11,s12,s21,s22.txt (Flow tangency matrices)
+        \end{itemize}
+
+        Most of the data files are read by the code into variables holding "carbon copies" of the data, with a few exceptions:
+        \begin{itemize}
+            \item The data in SimulationValues and Sizes are stored in individual variables for each number, rather than vectors.
+            \item The normal vectors, which are created in separate files by components (e.g. nxb and nyb are the x- and y- components of the normal vectors), are read by the code into arrays containing the entire vectors, \texttt{b\_normal} and \texttt{f\_normal}, where each row corresponds to a node and the columns correspond to [x y].
+            \item The matrices used to enforce flow tangency boundary conditions are stored in the array \texttt{slip}, where each row corresponds to a node, and the columns correspond to [s11 s12 s21 s22]
+        \end{itemize}
+        The structure of the normals and matrices were defined to reflect the text files to maintain readability, but it means the code will loop over those matrices as in
+        \begin{verbatim}
+do node=1,n
+    use array(node,:)
+end do
+        \end{verbatim}
+        which is slower than looping over the right-most index due to how Fortran stores data in memory. Eventually, the text files and arrays should be restructured for optimization.
 \end{document}
