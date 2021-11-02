@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
 \usepackage[margin=0.5in]{geometry}
+\usepackage{multicol}
 \begin{document}
     \title{To Do List and Open Issues}
     \author{Javier Villarreal}
@@ -9,10 +10,40 @@
     \section{Active Tasks}
 
     \subsection{Data architecture and variables}
-        The current task is to create all the variables necessary to hold the simulation data. So far, the only existing variables are those used to read in text file data. The rest of the data is organized like so in the C++ implementation:
+        The current task is to create all the variables necessary to hold the simulation data. So far, the only existing variables are those used to read in text file data.
+        
+        Most of the C++ variables were defined as members in classes. The classes are
+        \begin{multicols}{3}
+            \begin{itemize}
+                \item Data
+                \item Approximator
+                \item SimFluid
+                \item FlowVars
+                \item Time
+                \item Domain
+                \item InternalBoundary
+                \item ExternalBoundary
+                \item GeneticAlgorithm
+            \end{itemize}
+        \end{multicols}
+        Only some classes are instantiated in the main code, though, with some only existing within other classes as members. The data structure is roughly
+        \begin{verbatim}
+Data is never instantiated, serves as an "abstract" class
+    Q[4] => air.[r,u,v,e]
+Domain simRegion
+    InternalBoundary body
+    ExternalBoundary edge
+SimFluid air
+    FlowVars r,u,v,e
+    Time t
+Approximator solver
+    GeneticAlgorithm ga
+    dom => simregion
+    air => air
+        \end{verbatim}
+        where \texttt{=>} denotes pointer variables
 
-    
-        There could be room for improvement in the structure -- not necessarily for performance, but for readability of the code.
+    A full listing of the classes and their respective class member variables (not member functions) can be found in \texttt{C++\_classes.txt}. Of course, there are also variables defined within the scope of certain functions. Those are listed in \texttt{C++\_functions.txt}.
     
     \newpage
     \section{Future Improvements}

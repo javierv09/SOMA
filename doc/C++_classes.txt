@@ -1,0 +1,120 @@
+class Data:
+    double array Simvals[6]     /
+    double array Gam[5]         /
+    int array NumPts[7]         /
+    boolean viscous             /
+    pointers:
+        FlowVars array Q[4]     => SimFluid::[r u v e]
+        double X                => Domain::x
+        double Y                => Domain::y
+        double dT               => SimFluid::t::dt
+        double WX               => Domain::DX
+        double WY               => Domain::DY
+        int array Arrays[3]     => Domain::[Jd Jb Jf]
+        double Rmax             / experimental/non-essential
+
+class Approximator:
+    int ExpCount                /
+    boolean isImplicit          /
+    boolean Quit                /
+    GeneticAlgorithm ga         /
+    pointers:
+        Domain dom              => Domain
+        SimFluid air            => SimFluid
+
+class SimFluid:
+    double array RC[4]          /
+    double array DU[4]          /
+    double array Gi[4]          /
+    FlowVars r                  /
+    FlowVars u                  /
+    FlowVars v                  /
+    FlowVars e                  /
+    Time t                      /
+    pointers:
+        double Gv               / dynamic array
+
+class FlowVars:
+    int myId                    /
+    double farVal               /
+    double initVal              /
+    double L                    /
+    double R                    /
+    pointers:
+        double o                / dynamic array
+        double a                / dynamic array
+        double T                / dynamic array
+        double K                / dynamic array
+        double RKdt             / dynamic array
+        double a_exp            / dynamic array
+        double x_deriv          / dynamic array
+        double y_deriv          / dynamic array
+
+class Time:
+    int timeStep                /
+    double maxTime              /
+    double minTime              /
+    double max_dt               /
+    double min_dt               /
+    double CFL                  /
+    double CFL_I                /
+    double CFL_E                /
+    double array RMS[5]         /
+    double TotalRMS             /
+    double OldTotalRMS          /
+    pointers:
+        int NumPts              / never used
+        double dt               / dynamic array
+
+class Domain:
+    InternalBoundary body       /
+    ExternalBoundary edge       /
+    pointers:
+        int Jd                  / dynamic array of Jd.txt [DONE]
+        double x                / dynamic array of x.txt [DONE]
+        double y                / dynamic array of y.txt [DONE]
+        double DX               / dynamic array of DX.txt [DONE]
+        double DY               / dynamic array of DY.txt [DONE]
+        double Rmax             / experimental/non-essential
+
+class InternalBoundary:
+    pointers:
+        int Jb                  / dynamic array of Jb.txt [DONE]
+        double ec               / dynamic array that does nothing
+        double nx               / dynamic array of nxb.txt [DONE]
+        double ny               / dynamic array of nyb.txt [DONE]
+        double slip             / dynamic array of s11-s22.txt [DONE]
+
+class ExternalBoundary:
+    int loc                     /
+    double array farVal[4]      /
+    pointers:
+        int Jf                  / dynamic array of Jf.txt [DONE]
+        int type                / dynamic array
+        double nx               / dynamic array of nxf.txt [DONE]
+        double ny               / dynamic array of nyf.txt [DONE]
+        double EC               / dynamic array of EC.txt [DONE]
+
+class GeneticAlgorithm:
+    double eps                  /
+    int NumParams               /
+    int MinScoreIndex           /
+    int ThisGen                 /
+    int NumOrgs                 /
+    int MaxGens                 /
+    int MutRate                 /
+    int BestOrg                 /
+    double BestScore            /
+    double OldRBFScore          /
+    int NumParents              /
+    double CrossoverRate        /
+    int EliteCount              /
+    int XOverCount              /
+    int MutateCount             /
+    double FitnessScaleFactor   /
+    double shrink               /
+    int Parent1                 /
+    int Parent2                 /
+    pointers:
+        double P0               / dynamic array
+        double P1               / dynamic array
