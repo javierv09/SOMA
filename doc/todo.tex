@@ -1,4 +1,5 @@
 \documentclass[12pt]{article}
+\usepackage{amsmath}
 \usepackage[margin=0.5in]{geometry}
 \usepackage{multicol}
 \begin{document}
@@ -44,6 +45,21 @@ Approximator solver
         where \texttt{=>} denotes pointer variables
 
     A full listing of the classes and their respective class member variables (not member functions) can be found in \texttt{C++\_classes.txt}. Of course, there are also variables defined within the scope of certain functions. Those are listed in \texttt{C++\_functions.txt}.
+
+    So far, the truly necessary variables to fully describe compressible fluid flow are the primitive variables: $\rho$ (density), $u$ (x-velocity), $v$ (y-velocity), $E_t$ (total energy), and some dependent variables, like $p$ (pressure), $T$ (temperature), $\mu$ (dynamics viscosity), $k$ (thermal conductivity). Because the code is non-dimensionalized, though, thermal diffusivity is instead represented by the Prandtl number, which is constant for calorically perfect gases.
+
+    \subsubsection{Current Status}
+    All the variables listed above have been defined, but rather than using a complex structure like that found in the C++ code, the variables and their derivatives are currently defined in simple arrays. Supplementary variables will be defined as needed.
+
+    \subsection{Configuration File}
+    In the C++ version of the code, parameters for how to run the code were defined in various places. Fluid properties were in SimulationValues.txt, genetic algorithm options were defined in the main program (SOMA.cpp), and the file directories and other constant parameters were defined in Data.cpp and .hpp. Rather than having the simulation configuration spread out over many different places, a single file will be used to house all necessary parameters. 
+
+    A search of the literature will find that the CFD General Notation System (CGNS) exists for that purpose. It could potentially lead to a significant improvement towards the code's ease of use in the future.
+
+    For now, however, the configuration information will instead be created in a separate fortran module.
+
+    \subsubsection{Note}
+    There is no way for Fortran to know ahead of time whether a directory exists (e.g. trying to write output data into a not-yet-existent output directory). The only thing I can think to remedy this is to make sure the output directory exists while running the makefile, but that means the makefile has to be run with a command line argument to specify which geometry is being run ahead of time. Would that information then have to in turn be passed into the Fortran code?
     
     \newpage
     \section{Future Improvements}

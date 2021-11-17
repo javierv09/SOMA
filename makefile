@@ -33,8 +33,21 @@ $(OBJDIR) $(BINDIR):
 #=============
 # DEPENDENCIES
 #=============
-$(OBJDIR)/main.o: $(OBJDIR)/constants.o $(OBJDIR)/read_input_data.o
-$(OBJDIR)/read_input_data.o: $(OBJDIR)/constants.o
+$(OBJDIR)/main.o: \
+	$(SRCDIR)/main.f90 \
+	$(OBJDIR)/constants.o \
+	$(OBJDIR)/read_input_data.o\
+	$(OBJDIR)/config.o
+$(OBJDIR)/read_input_data.o: \
+	$(SRCDIR)/read_input_data.f90 \
+	$(OBJDIR)/config.o \
+	$(OBJDIR)/variables.o
+$(OBJDIR)/variables.o: \
+	$(SRCDIR)/variables.f90 \
+	$(OBJDIR)/constants.o
+$(OBJDIR)/config.o: \
+	$(SRCDIR)/config.f90 \
+	$(OBJDIR)/constants.o
 
 #=========
 # CLEAN-UP
