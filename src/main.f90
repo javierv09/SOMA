@@ -5,5 +5,6 @@ program soma
     implicit none
 
     call read_data()
+    print *, output_dir
 
 end program soma

@@ -10,56 +10,27 @@
 
     \section{Active Tasks}
 
-    \subsection{Data architecture and variables}
-        The current task is to create all the variables necessary to hold the simulation data. So far, the only existing variables are those used to read in text file data.
-        
-        Most of the C++ variables were defined as members in classes. The classes are
-        \begin{multicols}{3}
-            \begin{itemize}
-                \item Data
-                \item Approximator
-                \item SimFluid
-                \item FlowVars
-                \item Time
-                \item Domain
-                \item InternalBoundary
-                \item ExternalBoundary
-                \item GeneticAlgorithm
-            \end{itemize}
-        \end{multicols}
-        Only some classes are instantiated in the main code, though, with some only existing within other classes as members. The data structure is roughly
-        \begin{verbatim}
-Data is never instantiated, serves as an "abstract" class
-    Q[4] => air.[r,u,v,e]
-Domain simRegion
-    InternalBoundary body
-    ExternalBoundary edge
-SimFluid air
-    FlowVars r,u,v,e
-    Time t
-Approximator solver
-    GeneticAlgorithm ga
-    dom => simregion
-    air => air
-        \end{verbatim}
-        where \texttt{=>} denotes pointer variables
-
-    A full listing of the classes and their respective class member variables (not member functions) can be found in \texttt{C++\_classes.txt}. Of course, there are also variables defined within the scope of certain functions. Those are listed in \texttt{C++\_functions.txt}.
-
-    So far, the truly necessary variables to fully describe compressible fluid flow are the primitive variables: $\rho$ (density), $u$ (x-velocity), $v$ (y-velocity), $E_t$ (total energy), and some dependent variables, like $p$ (pressure), $T$ (temperature), $\mu$ (dynamics viscosity), $k$ (thermal conductivity). Because the code is non-dimensionalized, though, thermal diffusivity is instead represented by the Prandtl number, which is constant for calorically perfect gases.
-
-    \subsubsection{Current Status}
-    All the variables listed above have been defined, but rather than using a complex structure like that found in the C++ code, the variables and their derivatives are currently defined in simple arrays. Supplementary variables will be defined as needed.
-
     \subsection{Configuration File}
     In the C++ version of the code, parameters for how to run the code were defined in various places. Fluid properties were in SimulationValues.txt, genetic algorithm options were defined in the main program (SOMA.cpp), and the file directories and other constant parameters were defined in Data.cpp and .hpp. Rather than having the simulation configuration spread out over many different places, a single file will be used to house all necessary parameters. 
 
-    A search of the literature will find that the CFD General Notation System (CGNS) exists for that purpose. It could potentially lead to a significant improvement towards the code's ease of use in the future.
+    A search of the literature will find that the CFD General Notation System (CGNS) exists for that purpose. It could potentially lead to a significant improvement towards the code's ease of use in the future. For now, however, the configuration information will instead be created in a separate fortran module.
 
-    For now, however, the configuration information will instead be created in a separate fortran module.
+    \textbf{Update:} The configuration file has been created in \texttt{config.f90}. It is not yet complete, but as with the data architecture, more parameters will be added as necessary for the code.
 
-    \subsubsection{Note}
-    There is no way for Fortran to know ahead of time whether a directory exists (e.g. trying to write output data into a not-yet-existent output directory). The only thing I can think to remedy this is to make sure the output directory exists while running the makefile, but that means the makefile has to be run with a command line argument to specify which geometry is being run ahead of time. Would that information then have to in turn be passed into the Fortran code?
+    \subsection{Initialization}
+    The first major step in the actual code will now be to initialize all the variables. The steps to accomplish this are:
+    \begin{enumerate}
+        \item Allocate the arrays, dimensions should now be read in
+        \item Set all arrays equal to zero (\textbf{Q:} Does allocation accompish this?)
+        \item Set initial conditions by either:
+        \begin{itemize}
+            \item Static initial conditions throughout the domain; or
+            \item Read in output from prior run.
+        \end{itemize}
+        \item Enforce boundary conditions
+        \item Calculate derivatives
+    \end{enumerate}
+    The last two items on the list are not only for initialization, and are major components in running the code.
     
     \newpage
     \section{Future Improvements}
@@ -68,6 +39,9 @@ Approximator solver
 
     \subsection{Pre-processing/Data structure}
     The way the data is stored in the input text files and in variables within the code is suboptimal. Changes could be made both within pre-processing (i.e. the Matlab codes that generate those files) and how the variables are declared in Fortran.
+
+    \subsection{OS Independence}
+    During setup, the code sends a sh command to the system to create an output directory if it doesn't already exist. The consequence is that the code is thus Linux (and possible Mac) exclusive. It might be beneficial if the code could be independent of operating system, so it could also run on Windows. Perhaps there is some way to detect OS and use the \texttt{system} subroutine within Fortran accordingly, but this has not been looked into yet. Very low priority.
 
     \newpage
     \section{Completed Tasks}
@@ -91,4 +65,13 @@ Approximator solver
         \item nxf,nyf.txt (farfield node unit normal vectors)
         \item s11,s12,s21,s22.txt (Flow tangency matrices)
     \end{itemize}
+
+    \subsection{Create data architecture}
+    The most important flow variables and their derivatives are stored as arrays. This is different from the way it was written in the C++ code, but it should allow for a more streamlines architecture and faster access of data. A slightly more in-depth explanation will be found in the documentation notes.
+
+    \subsection{Ensure output directory exists}
+    If the output directory does not exist before the code is run, previously the code would crash, as it would be unable to find it. The current solution is to include a line in Fortran during the initial data input to send a \texttt{mkdir} to the system to create the appropriate folder.
+
+    One constraint from this implementation is that the code runs exclusively on Linux (and possible Mac), since it's a sh command sent to the system.
+
 \end{document}

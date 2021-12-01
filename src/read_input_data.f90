@@ -10,6 +10,9 @@ contains
     subroutine read_data()
         call read_param_data()
         call read_geom_data()
+
+        ! Once the data has been read from input directory, make sure output directory exists to be safe.
+        call execute_command_line("mkdir -p "//output_dir)
     end subroutine read_data
 
     subroutine read_param_data()

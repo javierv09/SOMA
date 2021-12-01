@@ -1,5 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage[margin=0.5in]{geometry}
+\usepackage{multicol}
+
 \begin{document}
     \title{SOMA Documentation}
     \author{Javier Villarreal}
@@ -12,10 +14,10 @@
     \section{C++ Code Architecture}
         The C++ code is broadly arranged in the following way:
         \begin{enumerate}
-            \item Reads in simulation parameter text files and defines some constants.
-            \item constructs the objects that hold the variables: \texttt{Domain}, \texttt{SimFluid}, and \texttt{Approximator}
-            \item Reads in geometry-based data files to appropriate object variables.
-            \item Enforces boundary conditions and calculates derivatives on initial data.
+            \item \textbf{[Complete]} Reads in simulation parameter text files and defines some constants.
+            \item \textbf{[Complete]} Constructs the objects that hold the variables: \texttt{Domain}, \texttt{SimFluid}, and \texttt{Approximator}
+            \item \textbf{[Compete]} Reads in geometry-based data files to appropriate object variables.
+            \item \textbf{[Redundant]} Enforces boundary conditions and calculates derivatives on initial data.
             \item Defines parameters for the genetic algorithm optimization code.
             \item (optional) Reads initial values from text files and re-calculates BC's and derivatives.
             \item Prints initial data to output text files.
@@ -25,6 +27,7 @@
         In the SOMA step, the code splits into one of two modes, explicit (using Runge-Kutta) or implicit (using RBF addition). Different mechanisms within the code based on convergence criteria or iteration counts switch the code between one mode or the other. Each one will be explained in its own section.
     
     \section{Pre-Processing}
+    \subsection{Input Data}
         Geometry data used to run the simulation is currently created on a case by case basis using Matlab codes to generate .txt files that are then read in by SOMA. SimulationValues.txt defines the configuration of the simulation, and Sizes.txt contains metadata used to properly allocate arrays.
         \begin{itemize}
             \item SimulationValues.txt (Mach, AOA, Re)
@@ -47,11 +50,52 @@
             \item The normal vectors, which are created in separate files by components (e.g. nxb and nyb are the x- and y- components of the normal vectors), are read by the code into arrays containing the entire vectors, \texttt{b\_normal} and \texttt{f\_normal}, where each row corresponds to a node and the columns correspond to [x y].
             \item The matrices used to enforce flow tangency boundary conditions are stored in the array \texttt{slip}, where each row corresponds to a node, and the columns correspond to [s11 s12 s21 s22]
         \end{itemize}
-        The structure of the normals and matrices were defined to reflect the text files to maintain readability, but it means the code will loop over those matrices as in
+        \textbf{Note:} The structure of the normals and matrices were defined to reflect the text files to maintain readability, but it means the code will loop over those matrices as in
         \begin{verbatim}
 do node=1,n
     use array(node,:)
 end do
         \end{verbatim}
         which is slower than looping over the right-most index due to how Fortran stores data in memory. Eventually, the text files and arrays should be restructured for optimization.
+
+    \subsection{Data architecture}
+    \subsubsection*{[LEGACY] C++ code implementation}
+        The current task is to create all the variables necessary to hold the simulation data. So far, the only existing variables are those used to read in text file data.
+            
+        Most of the C++ variables were defined as members in classes. The classes are
+        \begin{multicols}{3}
+            \begin{itemize}
+                \item Data
+                \item Approximator
+                \item SimFluid
+                \item FlowVars
+                \item Time
+                \item Domain
+                \item InternalBoundary
+                \item ExternalBoundary
+                \item GeneticAlgorithm
+            \end{itemize}
+        \end{multicols}
+        Only some classes are instantiated in the main code, though, with some only existing within other classes as members. The data structure is roughly
+        \begin{verbatim}
+Data is never instantiated, serves as an "abstract" class
+    Q[4] => air.[r,u,v,e]
+Domain simRegion
+    InternalBoundary body
+    ExternalBoundary edge
+SimFluid air
+    FlowVars r,u,v,e
+    Time t
+Approximator solver
+    GeneticAlgorithm ga
+    dom => simregion
+    air => air
+        \end{verbatim}
+        where \texttt{=>} denotes pointer variables
+
+        A full listing of the classes and their respective class member variables (not member functions) can be found in \texttt{C++\_classes.txt}. Of course, there are also variables defined within the scope of certain functions. Those are listed in \texttt{C++\_functions.txt}.
+    \subsection*{Fortran implementation}
+    The most important flow variables to fully describe compressible fluid flow are the primitive variables: $\rho$ (density), $u$ (x-velocity), $v$ (y-velocity), $E_t$ (total energy), and some dependent variables, like $p$ (pressure), $T$ (temperature), $\mu$ (dynamics viscosity), $k$ (thermal conductivity). Because the code is non-dimensionalized, though, thermal diffusivity is instead represented by the Prandtl number, which is constant for calorically perfect gases.
+
+    All the variables listed above have been defined, but rather than using a complex structure like that found in the C++ code, the variables and their derivatives are currently defined in simple arrays. In addition, an array was included for shear stress tensors that was not previously recorded in the C++ code.
 \end{document}
