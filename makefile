@@ -36,18 +36,38 @@ $(OBJDIR) $(BINDIR):
 $(OBJDIR)/main.o: \
 	$(SRCDIR)/main.f90 \
 	$(OBJDIR)/constants.o \
-	$(OBJDIR)/read_input_data.o\
-	$(OBJDIR)/config.o
-$(OBJDIR)/read_input_data.o: \
-	$(SRCDIR)/read_input_data.f90 \
+	$(OBJDIR)/variables.o \
+	$(OBJDIR)/config.o \
+	$(OBJDIR)/mod_initialize.o
+
+$(OBJDIR)/mod_readdata.o: \
+	$(SRCDIR)/mod_readdata.f90 \
 	$(OBJDIR)/config.o \
 	$(OBJDIR)/variables.o
+
 $(OBJDIR)/variables.o: \
 	$(SRCDIR)/variables.f90 \
 	$(OBJDIR)/constants.o
+
 $(OBJDIR)/config.o: \
 	$(SRCDIR)/config.f90 \
 	$(OBJDIR)/constants.o
+
+$(OBJDIR)/mod_initialize.o: \
+	$(SRCDIR)/mod_initialize.f90 \
+	$(OBJDIR)/config.o \
+	$(OBJDIR)/variables.o \
+	$(OBJDIR)/mod_readdata.o \
+	$(OBJDIR)/mod_boundaryconditions.o \
+	$(OBJDIR)/mod_differentiate.o
+
+$(OBJDIR)/mod_boundaryconditions.o: \
+	$(SRCDIR)/mod_boundaryconditions.f90 \
+	$(OBJDIR)/variables.o
+
+$(OBJDIR)/mod_differentiate.o: \
+	$(SRCDIR)/mod_differentiate.f90 \
+	$(OBJDIR)/variables.o
 
 #=========
 # CLEAN-UP

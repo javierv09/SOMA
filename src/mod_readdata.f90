@@ -1,9 +1,15 @@
 ! module containing all the subroutines necessary to read in data files.
-module read_input_data
+module mod_readdata
     use config
     use variables
 
     integer :: unit_num ! placeholder for unit number
+
+    ! input directory
+    character(len=*), parameter :: input_dir  = "geom/"//geometry//"/input/"
+    ! output directory
+    character(len=*), parameter :: output_dir = "geom/"//geometry//'/'//output_name
+    
     private read_param_data, read_geom_data, unit_num
 
 contains
@@ -111,4 +117,4 @@ contains
         close(unit_num)
 
     end subroutine read_geom_data
-end module read_input_data
+end module mod_readdata

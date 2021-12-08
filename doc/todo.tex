@@ -10,27 +10,21 @@
 
     \section{Active Tasks}
 
-    \subsection{Configuration File}
-    In the C++ version of the code, parameters for how to run the code were defined in various places. Fluid properties were in SimulationValues.txt, genetic algorithm options were defined in the main program (SOMA.cpp), and the file directories and other constant parameters were defined in Data.cpp and .hpp. Rather than having the simulation configuration spread out over many different places, a single file will be used to house all necessary parameters. 
-
-    A search of the literature will find that the CFD General Notation System (CGNS) exists for that purpose. It could potentially lead to a significant improvement towards the code's ease of use in the future. For now, however, the configuration information will instead be created in a separate fortran module.
-
-    \textbf{Update:} The configuration file has been created in \texttt{config.f90}. It is not yet complete, but as with the data architecture, more parameters will be added as necessary for the code.
-
     \subsection{Initialization}
     The first major step in the actual code will now be to initialize all the variables. The steps to accomplish this are:
     \begin{enumerate}
-        \item Allocate the arrays, dimensions should now be read in
-        \item Set all arrays equal to zero (\textbf{Q:} Does allocation accompish this?)
+        \item \textbf{[Complete]} Allocate the arrays, dimensions should now be read in
+        \item \textbf{[Complete]} Set all arrays equal to zero (\textbf{NOTE:} Never assume that allocation will default variables to zero, as it is not guaranteed behavior)
         \item Set initial conditions by either:
         \begin{itemize}
-            \item Static initial conditions throughout the domain; or
-            \item Read in output from prior run.
+            \item \textbf{[Complete]} Static initial conditions throughout the domain; or
+            \item \textbf{[Postponed]} Read in output from prior run.
         \end{itemize}
         \item Enforce boundary conditions
         \item Calculate derivatives
     \end{enumerate}
-    The last two items on the list are not only for initialization, and are major components in running the code.
+    
+    \textbf{Update:} Reading in initial conditions from previous run is being saved until later, after the code's output is determined, since at this time, it is not fully determined what that output may look like.
     
     \newpage
     \section{Future Improvements}
@@ -41,7 +35,10 @@
     The way the data is stored in the input text files and in variables within the code is suboptimal. Changes could be made both within pre-processing (i.e. the Matlab codes that generate those files) and how the variables are declared in Fortran.
 
     \subsection{OS Independence}
-    During setup, the code sends a sh command to the system to create an output directory if it doesn't already exist. The consequence is that the code is thus Linux (and possible Mac) exclusive. It might be beneficial if the code could be independent of operating system, so it could also run on Windows. Perhaps there is some way to detect OS and use the \texttt{system} subroutine within Fortran accordingly, but this has not been looked into yet. Very low priority.
+    During setup, the code sends a shell command to the system to create an output directory if it doesn't already exist. The consequence is that the code is thus Linux (and possible Mac) exclusive. It might be beneficial if the code could be independent of operating system, so it could also run on Windows. Perhaps there is some way to detect OS and use the \texttt{system} subroutine within Fortran accordingly, but this has not been looked into yet. Very low priority.
+
+    \subsection{Initialization}
+    Most of the variable initializations are (and will be) defined in the config.f90 file. However, due to the migration from the C++ code, the Mach number, angle of attack, and Reynolds number are all still read from the Cylinder data files (SimulationValues.txt). It will be a small, and quick change to retire the text file in favor of config.f90, and should be one of the first things to go once the main porting is complete.
 
     \newpage
     \section{Completed Tasks}
@@ -73,5 +70,8 @@
     If the output directory does not exist before the code is run, previously the code would crash, as it would be unable to find it. The current solution is to include a line in Fortran during the initial data input to send a \texttt{mkdir} to the system to create the appropriate folder.
 
     One constraint from this implementation is that the code runs exclusively on Linux (and possible Mac), since it's a sh command sent to the system.
+
+    \subsection{Initialization}
+    The initialization specific subroutines have been completed. This refers to creating, allocating, and initializing the variables array. Initial conditions are specified through the configuration file.
 
 \end{document}

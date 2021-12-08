@@ -25,6 +25,8 @@
             \item Prints latest values to output text files.
         \end{enumerate}
         In the SOMA step, the code splits into one of two modes, explicit (using Runge-Kutta) or implicit (using RBF addition). Different mechanisms within the code based on convergence criteria or iteration counts switch the code between one mode or the other. Each one will be explained in its own section.
+
+        The Fortran implementation will slightly modify the code architecture. The optional step of reading flow conditions from a previous run overwrites the boundary conditions and derivatives, and they have to be calculated again. Instead, the option to read in data will happen \textit{before} those steps, to avoid redundancy.
     
     \section{Pre-Processing}
     \subsection{Input Data}
@@ -98,4 +100,7 @@ Approximator solver
     The most important flow variables to fully describe compressible fluid flow are the primitive variables: $\rho$ (density), $u$ (x-velocity), $v$ (y-velocity), $E_t$ (total energy), and some dependent variables, like $p$ (pressure), $T$ (temperature), $\mu$ (dynamics viscosity), $k$ (thermal conductivity). Because the code is non-dimensionalized, though, thermal diffusivity is instead represented by the Prandtl number, which is constant for calorically perfect gases.
 
     All the variables listed above have been defined, but rather than using a complex structure like that found in the C++ code, the variables and their derivatives are currently defined in simple arrays. In addition, an array was included for shear stress tensors that was not previously recorded in the C++ code.
+
+    \subsection{Initialization}
+    For the most part, the initial values of the simulation are defined in the Fortran code config.f90, (with the exceptions of Mach number, angle of attack, and Reynolds number). As far as the initial values of the flow variables, the initial total velocity is given, and the initial density and temperature. From those, the initial values for total energy, pressure, and viscosity are derived using the equation of state for calorically perfect gases and Sutherland's law for viscosity.
 \end{document}

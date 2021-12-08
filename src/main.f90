@@ -1,10 +1,11 @@
 program soma
     use constants
-    use read_input_data
+    use variables
     use config
+    use mod_initialize, only: initialize
     implicit none
 
-    call read_data()
-    print *, output_dir
+    call initialize()
+    print *, "STOP TO DOCUMENT"
 
 end program soma
