@@ -1,5 +1,6 @@
 module config
     use constants
+    implicit none
 
     ! choose geometry directory
     character(len=*), parameter :: geometry = "cylinder"

@@ -25,6 +25,25 @@
     \end{enumerate}
     
     \textbf{Update:} Reading in initial conditions from previous run is being saved until later, after the code's output is determined, since at this time, it is not fully determined what that output may look like.
+
+    \subsection{Boundary Condition Enforcement}
+    Under the C++ code's OOP architecture, boundary enforcement was divided between enforcement on the surface boundary (cylinder, airfoil, etc), and the farfield boundaries. The Fortran code shouldn't need such a distintion (I hope), so all the boundary condition subroutines will be in one place.
+
+    Here is the general layout of boundary condition algorithms used in the C++ code:
+    \begin{itemize}
+        \item ``Internal Boundary'' (surface)
+        \begin{itemize}
+            \item Set velocity to zero if viscous flow (no-slip condition)
+            \item Set density and energy at ghost nodes equal to one-off nodes
+            \item Set velocities at ghost nodes equal to velocities at one-off nodes if vicsous; and
+            \item Use slip matrix to set velocities at ghost nodes if inviscid.
+        \end{itemize}
+        \item ``External Boundary'' (farfield)
+        \begin{itemize}
+            \item Either set variable to predetermined farfield value; or
+            \item Extrapolate from nearby values, depending on whether flow is sub- or supersonic and it's an inlet or outlet.
+        \end{itemize}
+    \end{itemize}
     
     \newpage
     \section{Future Improvements}
@@ -33,6 +52,8 @@
 
     \subsection{Pre-processing/Data structure}
     The way the data is stored in the input text files and in variables within the code is suboptimal. Changes could be made both within pre-processing (i.e. the Matlab codes that generate those files) and how the variables are declared in Fortran.
+
+    Additionally, the data files containing index "directories" for domain and boundary nodes (i.e. Jd, Jb, Jf.txt) are created by Matlab using scientific notation, and thus have to be read as real numbers. The code would be cleaner if these variables were created as integers.
 
     \subsection{OS Independence}
     During setup, the code sends a shell command to the system to create an output directory if it doesn't already exist. The consequence is that the code is thus Linux (and possible Mac) exclusive. It might be beneficial if the code could be independent of operating system, so it could also run on Windows. Perhaps there is some way to detect OS and use the \texttt{system} subroutine within Fortran accordingly, but this has not been looked into yet. Very low priority.

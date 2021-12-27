@@ -2,6 +2,7 @@
 module mod_readdata
     use config
     use variables
+    implicit none
 
     integer :: unit_num ! placeholder for unit number
 
@@ -29,7 +30,7 @@ contains
         close(unit_num)
 
         open(newunit=unit_num, file=input_dir//"SimulationValues.txt", action="read", status="old")
-        read(unit_num, *) Ma, AOA, Re
+        read(unit_num, *) Ma_inf, AOA, Re
         close(unit_num)
 
     end subroutine read_param_data
@@ -44,6 +45,16 @@ contains
     !   nxf, nyf            ! normal unit vectors at farfield nodes
     !   s11, s12, s21, s22  ! Matrices that enforce flow tangency conditions (by reversing value at ghost point)
                             ! TODO: Add documentation for s## matrices
+        
+        ! Placeholder arrays because input files are in scientific notation TODO: Change input file generation
+        integer :: i, j
+        real, dimension(:,:), allocatable :: Jd_real
+        real, dimension(:,:), allocatable :: Jb_real
+        real, dimension(:,:), allocatable :: Jf_real
+        allocate( Jd_real(n_dom,n_cloud) )
+        allocate( Jb_real(n_body,n_cloud) )
+        allocate( Jf_real(n_far,n_extrap+1) )
+
         allocate( x(n_total) )
         allocate( y(n_total) )
         allocate( DQ_x(n_dom,n_cloud) )
@@ -77,21 +88,24 @@ contains
 
         ! Read index "directories"
         open(newunit=unit_num, file=input_dir//"Jd.txt", action="read", status="old")
-        read(unit_num, *) ((Jd(i,j), j=1,n_cloud), i=1,n_dom)
+        read(unit_num, *) ((Jd_real(i,j), j=1,n_cloud), i=1,n_dom)
         close(unit_num)
+        Jd = int(Jd_real)
         open(newunit=unit_num, file=input_dir//"Jb.txt", action="read", status="old")
-        read(unit_num, *) ((Jb(i,j), j=1,n_cloud), i=1,n_body)
+        read(unit_num, *) ((Jb_real(i,j), j=1,n_cloud), i=1,n_body)
         close(unit_num)
+        Jb = int(Jb_real)
         open(newunit=unit_num, file=input_dir//"Jf.txt", action="read", status="old")
-        read(unit_num, *) ((Jf(i,j), j=1,n_extrap+1), i=1,n_far)
+        read(unit_num, *) ((Jf_real(i,j), j=1,n_extrap+1), i=1,n_far)
         close(unit_num)
+        Jf = int(Jf_real)
 
         ! Read normal vectors on boundary
         open(newunit=unit_num, file=input_dir//"nxb.txt", action="read", status="old")
-        read(unit_num, *) (b_normal(i,1), i=1,n_bod)
+        read(unit_num, *) (b_normal(i,1), i=1,n_body)
         close(unit_num)
         open(newunit=unit_num, file=input_dir//"nyb.txt", action="read", status="old")
-        read(unit_num, *) (b_normal(i,2), i=1,n_bod)
+        read(unit_num, *) (b_normal(i,2), i=1,n_body)
         close(unit_num)
 
         ! Read normal vectors on farfield

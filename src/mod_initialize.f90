@@ -4,6 +4,8 @@ module mod_initialize
     use mod_readdata, only: read_data
     use mod_boundaryconditions, only: enforce_bc
     use mod_differentiate, only: differentiate
+    implicit none
+
     contains
 
     subroutine initialize()
@@ -23,19 +25,20 @@ module mod_initialize
     end subroutine initialize
 
     subroutine allocate_variables()
-        allocate( var(7,n_total) )
-        allocate( var_d(7, 5, n_total) )
+        allocate( var(n_var,n_total) )
+        allocate( var_d(n_var, 5, n_total) )
         allocate( tau(3,n_total) )
+        allocate( var2(n_var2,n_total) )
 
         var = 0
         var_d = 0
         tau = 0
+        var2 = 0
     end subroutine allocate_variables
 
     subroutine initial_conditions()
         ! The angle of attack is given in degrees, but the trigonometric functions expect radians, so AOA must be converted
-        real(dp) :: AOA_rad 
-        real(dp) :: Et_init
+        !real(dp) :: Et_init
         
         AOA_rad = pi*AOA/180.0
 
@@ -46,10 +49,10 @@ module mod_initialize
         var(v,:) = V_init * sin(AOA_rad)
         ! Initial temperature
         var(T,:) = T_init
-        
+         
         ! Initial energy is calculated
         ! E_t = pT/(yM^2(y-1)) + 1/2 pV^2 (p = rho, y = gamma)
-        Et_init = rho_init * ( T_init/(gamma* Ma**2 * (gamma-1)) + 0.5*V_init**2 )
+        Et_init = rho_init * ( T_init/(gamma* Ma_inf**2 * (gamma-1)) + 0.5*V_init**2 )
         var(E_t,:) = Et_init
 
         ! Initial pressure is calculated using the equation of state for clorically perfect gas
@@ -59,5 +62,28 @@ module mod_initialize
         ! Initial viscosity is calculated using Sutherland's law
         ! u = T^(3/2) * (1 + S)/(T + S) (u = mu, S = Sutherland constant for air)
         var(mu,:) = T_init**1.5 *  (1 + suth)/(T_init + suth)
+
+        ! Initial total velocity as given
+        var2(V_tot,:) = V_init
+
+        ! Initial Mach number as given
+        var2(Ma,:) = Ma_inf
+
+        ! Initial speed of sound
+        var2(a,:) = V_init/Ma_inf
+
+        !print *, "Density       : ", var(rho,1), " ", var(rho,1769)
+        !print *, "X-velocity    : ", var(u,1), " ", var(u,1769)
+        !print *, "Y-velocity    : ", var(v,1), " ", var(v,1769)
+        !print *, "Velocity      : ", var2(V_tot,1), " ", var2(V_tot,1769)
+        !print *, "Energy        : ", var(E_t,1), " ", var(E_t,1769)
+        !print *, "Pressure      : ", var(P,1), " ", var(P,1769)
+        !print *, "Temperature   : ", var(T,1), " ", var(T,1769)
+        !print *, "Viscosity     : ", var(mu,1), " ", var(mu,1769)
+        !print *, "Speed of Sound: ", var2(a,1), " ", var2(a,1769)
+        !print *, "Mach number   : ", var2(Ma,1), " ", var2(Ma,1769)
+
+        ! Assign logical variable viscous depending on Reynolds number
+        viscous = Re .gt. 0
     end subroutine initial_conditions
 end module mod_initialize

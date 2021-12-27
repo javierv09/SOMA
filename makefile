@@ -63,10 +63,18 @@ $(OBJDIR)/mod_initialize.o: \
 
 $(OBJDIR)/mod_boundaryconditions.o: \
 	$(SRCDIR)/mod_boundaryconditions.f90 \
-	$(OBJDIR)/variables.o
+	$(OBJDIR)/constants.o \
+	$(OBJDIR)/config.o \
+	$(OBJDIR)/variables.o \
+	$(OBJDIR)/mod_governingeqs.o
 
 $(OBJDIR)/mod_differentiate.o: \
 	$(SRCDIR)/mod_differentiate.f90 \
+	$(OBJDIR)/variables.o
+
+$(OBJDIR)/mod_governingeqs.o: \
+	$(SRCDIR)/mod_governingeqs.f90 \
+	$(OBJDIR)/config.o \
 	$(OBJDIR)/variables.o
 
 #=========

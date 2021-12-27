@@ -6,6 +6,6 @@ program soma
     implicit none
 
     call initialize()
-    print *, "STOP TO DOCUMENT"
+    !print *, viscous
 
 end program soma

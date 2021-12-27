@@ -1,16 +1,20 @@
 module variables
     use constants
+    implicit none
 
     ! Data that is read in from input data files
     integer  :: n_dom, n_body, n_far, n_cloud, n_ghost, n_extrap, n_total
-    real(dp) :: Ma, Re, AOA
+    real(dp) :: Ma_inf, Re, AOA
+    real(dp) :: AOA_rad, Et_init
 
     real(dp), dimension(:)  , allocatable :: x, y
     real(dp), dimension(:,:), allocatable :: DQ_x, DQ_y, EC, &
-                                             Jd, Jb, Jf, &
                                              b_normal, &
                                              f_normal, &
                                              slip
+    integer, dimension(:,:), allocatable :: Jd, Jb, Jf
+    
+    logical :: viscous
 
     ! primitive and dependent variables
     real(dp), dimension(:,:), allocatable :: var
@@ -29,6 +33,19 @@ module variables
     integer, parameter :: p = 5
     integer, parameter :: T = 6
     integer, parameter :: mu = 7
+
+    integer, parameter :: n_var = 7 ! Number of variables in the var array (used for allocation)
+
+    ! Secondary variables that may be of interest
+    real(dp), dimension(:,:), allocatable :: var2
+        ! var2(3,:) = total velocity (V_tot)
+        ! var2(2,:) = speed of sound (a)
+        ! var2(3,:) = local Mach number (Ma)
+    integer, parameter :: V_tot = 1
+    integer, parameter :: a = 2
+    integer, parameter :: Ma = 3
+
+    integer, parameter :: n_var2 = 3 ! Number of secondary variables
 
     ! variable derivatives
     real(dp), dimension(:,:,:), allocatable :: var_d
