@@ -71,6 +71,8 @@ module mod_boundaryconditions
 
         allocate( farfield_ind(n_far) )
         allocate( extrap_ind(n_far,n_extrap) )
+        ! var_far variables will be placeholders for farfield values. This is necessary because the farfield has to be
+        ! looped over, due to the possibility of distinct boundary conditions (depending on flow direction and Ma)
         allocate( rho_far(n_far) )
         allocate( u_far(n_far) )
         allocate( v_far(n_far) )
@@ -85,12 +87,14 @@ module mod_boundaryconditions
         ! Mach number is already contained in var2
         Ma_far = var2(Ma,farfield_ind)
 
-        ! Flow direction can be calculated by dot product of velocity with farfield normal
+        ! Populate farfield variables with current values
+        rho_far = var(rho,farfield_ind)
         u_far = var(u,farfield_ind)
         v_far = var(v,farfield_ind)
+        Et_far = var(E_t,farfield_ind)
 
+        ! Flow direction can be calculated by dot product of velocity with farfield normal
         flux_angle = u_far*f_normal(:,1) + v_far*f_normal(:,2)
-        print *, AOA_rad
 
         ! Apply boundary conditions depending on flow situation
         do i = 1,n_far
@@ -99,34 +103,50 @@ module mod_boundaryconditions
                 u_far(i)   = V_init*cos(AOA_rad)
                 v_far(i)   = V_init*sin(AOA_rad)
                 Et_far(i)  = Et_init
+            
             else if ( Ma_far(i) .lt. 1 .and. flux_angle(i) .le. 0 ) then ! Subsonic inlet
                 rho_far(i) = rho_init
                 u_far(i)   = V_init*cos(AOA_rad)
                 v_far(i)   = V_init*sin(AOA_rad)
-                Et_far(i)  = extrapolate()
+                call extrapolate(Et_far(i), E_t)
+            
             else if ( Ma_far(i) .ge. 1 .and. flux_angle(i) .gt. 0 ) then! Supersonic outlet
-                rho_far(i) = extrapolate()
-                u_far(i)   = extrapolate()
-                v_far(i)   = extrapolate()
-                Et_far(i)  = extrapolate()
+                call extrapolate(rho_far(i), rho)
+                call extrapolate(u_far(i), u)
+                call extrapolate(v_far(i), v)
+                call extrapolate(Et_far(i), E_t)
+            
             else if ( Ma_far(i) .lt. 1 .and. flux_angle(i) .gt. 0 ) then ! Subsonic outlet
-                rho_far(i) = extrapolate()
-                u_far(i)   = extrapolate()
-                v_far(i)   = extrapolate()
+                call extrapolate(rho_far(i), rho)
+                call extrapolate(u_far(i), u)
+                call extrapolate(v_far(i), v)
                 Et_far(i)  = Et_init
             end if
         end do
 
-    end subroutine farfield_bc
+        ! With the farfield values calcualted, they can now be uploaded to var
+        var(rho,farfield_ind) = rho_far
+        var(u  ,farfield_ind) = u_far
+        var(v  ,farfield_ind) = v_far
+        var(E_t,farfield_ind) = Et_far
 
-    real function extrapolate()
-    ! This "extrapolation" function is as it was created in the C++ code: Here's a quick rundown of how it works:
-    ! 0. "Extrapolation coefficients" (EC) are created in pre-processing. (Based on Shepard's method interpolation)
-    ! 1. The EC's are used with a nearby "cloud" of nodes to basically create an interpolation to the primary node.
-    ! 2. The interpolated value is averaged with the old value to create the new value (I guess this adds smoothing)
-    ! u_new = 1/2 (u_old + u_extrapolated)
-        
-        real(dp), intent(out) :: u_new
-    end function extrapolate
+        ! Just to be safe, re-calculate dependant variables
+        call refresh_variables()
+
+        contains
+
+        subroutine extrapolate(current_val, var_k)
+            ! This "extrapolation" function is as it was created in the C++ code: Here's a quick rundown of how it works:
+            ! 0. "Extrapolation coefficients" (EC) are created in pre-processing. (Based on Shepard's method interpolation)
+            ! 1. The EC's are used with a nearby "cloud" of nodes to basically create an interpolation to the primary node.
+            ! 2. The interpolated value is averaged with the old value to create the new value (I guess this adds smoothing)
+            ! u_new = 1/2 (u_old + u_extrapolated)
+            real(dp), intent(inout) :: current_val
+            integer, intent(in) :: var_k
+
+            current_val = 0.5_dp*( current_val + sum( var(var_k,extrap_ind(i,:))*EC(i,:) ) )
+        end subroutine extrapolate
+
+    end subroutine farfield_bc
 
 end module mod_boundaryconditions

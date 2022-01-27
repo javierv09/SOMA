@@ -72,17 +72,6 @@ module mod_initialize
         ! Initial speed of sound
         var2(a,:) = V_init/Ma_inf
 
-        !print *, "Density       : ", var(rho,1), " ", var(rho,1769)
-        !print *, "X-velocity    : ", var(u,1), " ", var(u,1769)
-        !print *, "Y-velocity    : ", var(v,1), " ", var(v,1769)
-        !print *, "Velocity      : ", var2(V_tot,1), " ", var2(V_tot,1769)
-        !print *, "Energy        : ", var(E_t,1), " ", var(E_t,1769)
-        !print *, "Pressure      : ", var(P,1), " ", var(P,1769)
-        !print *, "Temperature   : ", var(T,1), " ", var(T,1769)
-        !print *, "Viscosity     : ", var(mu,1), " ", var(mu,1769)
-        !print *, "Speed of Sound: ", var2(a,1), " ", var2(a,1769)
-        !print *, "Mach number   : ", var2(Ma,1), " ", var2(Ma,1769)
-
         ! Assign logical variable viscous depending on Reynolds number
         viscous = Re .gt. 0
     end subroutine initial_conditions

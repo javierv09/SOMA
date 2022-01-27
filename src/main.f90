@@ -6,6 +6,5 @@ program soma
     implicit none
 
     call initialize()
-    !print *, viscous
 
 end program soma
