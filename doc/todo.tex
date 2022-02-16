@@ -20,31 +20,13 @@
             \item \textbf{[Complete]} Static initial conditions throughout the domain; or
             \item \textbf{[Postponed]} Read in output from prior run.
         \end{itemize}
-        \item Enforce boundary conditions
+        \item \textbf{[Complete]} Enforce boundary conditions
         \item Calculate derivatives
     \end{enumerate}
     
     \textbf{Update:} Reading in initial conditions from previous run is being saved until later, after the code's output is determined, since at this time, it is not fully determined what that output may look like.
-
-    \subsection{Boundary Condition Enforcement}
-    Under the C++ code's OOP architecture, boundary enforcement was divided between enforcement on the surface boundary (cylinder, airfoil, etc), and the farfield boundaries. The Fortran code shouldn't need such a distintion (I hope), so all the boundary condition subroutines will be in one place.
-
-    Here is the general layout of boundary condition algorithms used in the C++ code:
-    \begin{itemize}
-        \item ``Internal Boundary'' (surface)
-        \begin{itemize}
-            \item Set velocity to zero if viscous flow (no-slip condition)
-            \item Set density and energy at ghost nodes equal to one-off nodes
-            \item Set velocities at ghost nodes equal to velocities at one-off nodes if vicsous; and
-            \item Use slip matrix to set velocities at ghost nodes if inviscid.
-        \end{itemize}
-        \item ``External Boundary'' (farfield)
-        \begin{itemize}
-            \item Either set variable to predetermined farfield value; or
-            \item Extrapolate from nearby values, depending on whether flow is sub- or supersonic and it's an inlet or outlet.
-        \end{itemize}
-    \end{itemize}
     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \newpage
     \section{Future Improvements}
     \subsection{Build Options}
@@ -61,6 +43,16 @@
     \subsection{Initialization}
     Most of the variable initializations are (and will be) defined in the config.f90 file. However, due to the migration from the C++ code, the Mach number, angle of attack, and Reynolds number are all still read from the Cylinder data files (SimulationValues.txt). It will be a small, and quick change to retire the text file in favor of config.f90, and should be one of the first things to go once the main porting is complete.
 
+    \subsection{Boundary Condition Enforcement}
+    Significant improvements could be made to boundary condition enforcement, so this is just an overview of some major points.
+    
+    The major cause of problems currently is with the extrapolation function, but more broadly, the farfield boundary conditions in general. The current extrapolation algorithm is basically built out of an \textit{interpolation} algorithm, but applied outside the cloud of nodes. This can sometimes lead to oscillations developing in the farfield, which propagate into the simulation and negatively impact results. More broadly, the boundary conditions being enforced in the farfield could likely be revisited and reformulated to give a better approximation of the physical equations. Pure Dirichlet enforcement and extrapolation may not be good enough.
+
+    The boundary conditions at the surface might be acceptable, though some process might need to be put in place during pre-processing to create a structured grid of nodes near surfaces for the purposes of differentiation. Particuarly for viscous flow problems, higher order differentiation amplifies errors in the boundary conditions.
+
+    Overall, the physcial and numerical underlying assumptions could all be reassessed.
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \newpage
     \section{Completed Tasks}
 
@@ -94,5 +86,8 @@
 
     \subsection{Initialization}
     The initialization specific subroutines have been completed. This refers to creating, allocating, and initializing the variables array. Initial conditions are specified through the configuration file.
+
+    \subsection{Boundary Condition Enforcement}
+    Boundary condition enforcement algorithms were coded identically to how they behaved on the C++ code (more documentation in doc\_notes and in-depth explanation in the thesis). The major difference is that all the boundary condition algorithms were consolidated into one module, as opposed to having distinct files and structures like in the C++ code. The result is hopefully a more streamlined code.
 
 \end{document}
