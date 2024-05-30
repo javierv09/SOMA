@@ -45,4 +45,5 @@ The name of the executable file is defined in `makefile` as the variable `EXE`. 
 
 To run the program, execute the command `bin/soma`.
 
->[!TIP] The project can be reset to its "clean" state (deleting the object and executable folders) by executing `make clean` from the terminal. This may be necessary sometimes if the code is edited and dependencies change. This allows for a fresh recompilation.
+> [!TIP]
+> The project can be reset to its "clean" state (deleting the object and executable folders) by executing `make clean` from the terminal. This may be necessary sometimes if the code is edited and dependencies change. This allows for a fresh recompilation.

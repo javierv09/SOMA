@@ -59,7 +59,7 @@ $(OBJDIR)/mod_initialize.o: \
 	$(OBJDIR)/variables.o \
 	$(OBJDIR)/mod_readdata.o \
 	$(OBJDIR)/mod_boundaryconditions.o \
-	$(OBJDIR)/mod_differentiate.o
+	$(OBJDIR)/mod_derivatives.o
 
 $(OBJDIR)/mod_boundaryconditions.o: \
 	$(SRCDIR)/mod_boundaryconditions.f90 \
@@ -68,8 +68,8 @@ $(OBJDIR)/mod_boundaryconditions.o: \
 	$(OBJDIR)/variables.o \
 	$(OBJDIR)/mod_governingeqs.o
 
-$(OBJDIR)/mod_differentiate.o: \
-	$(SRCDIR)/mod_differentiate.f90 \
+$(OBJDIR)/mod_derivatives.o: \
+	$(SRCDIR)/mod_derivatives.f90 \
 	$(OBJDIR)/variables.o
 
 $(OBJDIR)/mod_governingeqs.o: \

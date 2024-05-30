@@ -49,6 +49,7 @@
         Most of the data files are read by the code into variables holding "carbon copies" of the data, with a few exceptions:
         \begin{itemize}
             \item The data in SimulationValues and Sizes are stored in individual variables for each number, rather than vectors.
+            \item The total number of nodes is equal to the number of domain nodes plus the number of farfield nodes plus the number of ghost points mutiplied by the number of body nodes. The body nodes themselves are already included within the domain nodes.
             \item The normal vectors, which are created in separate files by components (e.g. nxb and nyb are the x- and y- components of the normal vectors), are read by the code into arrays containing the entire vectors, \texttt{b\_normal} and \texttt{f\_normal}, where each row corresponds to a node and the columns correspond to [x y].
             \item The matrices used to enforce flow tangency boundary conditions are stored in the array \texttt{slip}, where each row corresponds to a node, and the columns correspond to [s11 s12 s21 s22]
         \end{itemize}

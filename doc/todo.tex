@@ -31,7 +31,7 @@
     \begin{enumerate}
         \item Derivatives throughout the domain.
         \item Derivatives at the surface boundary.
-        \item Derivatves on the farfield.
+        \item Derivatives on the farfield.
     \end{enumerate}
 
     Differentiation is carried out using Differential Quadrature (DQ). The C++ code only calculates derivatives of the flow variables (density, velocity, energy). One "problem" with the C++ code is that viscous flows requires second derivatives, but second order DQ is not used. Instead, the derivatives of the derivatives are calculated. As a consequence, the derivatives at ghost points need to be known. The C++ code calculates derivatives at the ghost points, but it needs to be seriously examined, because to my knowledge it may not be based on any literature or physical property. For reference, meshed FD methods, for instance, don't need derivatives at ghost points, because second derivatives aren't calculated as "derivatives of derivatives". Rather, there is a separate formulation for second derivatives.

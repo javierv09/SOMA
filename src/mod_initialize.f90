@@ -3,7 +3,7 @@ module mod_initialize
     use variables
     use mod_readdata, only: read_data
     use mod_boundaryconditions, only: enforce_bc
-    use mod_differentiate, only: differentiate
+    use mod_derivatives, only: calc_derivatives
     implicit none
 
     contains
@@ -20,7 +20,7 @@ module mod_initialize
         end if
         
         call enforce_bc()
-        call differentiate()
+        call calc_derivatives()
 
     end subroutine initialize
 

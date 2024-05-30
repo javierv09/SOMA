@@ -1,15 +1,30 @@
-module mod_differentiate
+module mod_derivatives
     use variables
     implicit none
     contains
 
-    subroutine differentiate()
-        !print *, "Differentiating subroutine"
+    subroutine calc_derivatives()
         real(dp), dimension(n_dom,n_cloud) :: temp_var, tempu, tempudq
         real(dp), dimension(n_dom) :: tempdudx
         integer :: i,j, test
+        print *, "Calculating derivatives"
 
-        test = v
+        call domain_derivatives()
+
+        ! pseudo code for how this function should work. calc_derivatives acts a central hub for all differentiation tasks
+        ! - All the derivative calculations (and manipulations) are managed here
+        ! -- The first major subroutine call calculates DQ derivatives for domain and body boundary points
+        ! -- The second major subroutine call sets the values of derivatives at body ghost points
+        ! -- The third major subroutine call sets or extrapolates derivatives at farfield points
+        !
+        ! - The domain/body derivative subroutine passes the variable to differentiate using DQ
+        !   One variable per line.
+        !
+        ! - The body ghost subroutine sets derivative values manually (needs a closer look re: theory)
+        !
+        ! - The farfield derivative subroutine does not use DQ, but rather directly enforces or extrapolates derivative values.
+        !
+        ! - A small core differential quadrature (DQ) subroutine that takes a variable and outputs the derivatives of it.
 
         do i=1,n_cloud
             tempu(:,i) = var(test,Jd(:,i))
@@ -96,7 +111,27 @@ module mod_differentiate
         !print *, var_d(test,dx,4)
         !print *, var_d(test,dx,5)
         !print *, var_d(test,dx,6)
+    end subroutine calc_derivatives
 
+    subroutine domain_derivatives()
+        ! This subroutine calculates the derivatives at nodes included in the Jd index array.
+        ! It should be noted that this includes derivative calculation at body boundary points.
+        integer :: test
+        test = deriv(1,1)
 
-    end subroutine differentiate
-end module mod_differentiate
+    end subroutine domain_derivatives
+
+    function deriv(variable,wrt)
+        integer, intent(in) :: variable !
+        integer, intent(in) :: wrt !
+
+        integer :: deriv  !
+
+        print *, "HERE" !
+        print *, rho !
+        print *, "THERE" !
+        deriv = variable + wrt !
+
+    end function deriv
+    
+end module mod_derivatives
